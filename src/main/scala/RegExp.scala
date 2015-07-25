@@ -1,4 +1,8 @@
 
+/**
+ * Defines Regular Expression and simple (non-optimized) combinators
+ *
+ */
 trait RE {
   def derive(c: Char): RE
   def acceptsEmpty: Boolean
@@ -7,6 +11,33 @@ trait RE {
     val t = (this /: s)(_ derive _)
     t.acceptsEmpty
   }
+
+  /**
+   * All future simplifications/optimizations (to reduce the exponential growth) should be implemented here.
+   * Nice operators and integration is provided later by REImplicits.
+   */
+
+  // binary combinators
+  def concat(r: RE): RE = Concat(this, r)
+  def or(r: RE): RE = Union(this, r)
+  def intersect(r: RE): RE = ???
+
+  // unary combinators
+  def complement: RE = ???
+  def star: RE = Kleene(this)
+
+  def atLeastOnce: RE = Concat(this, this.star)
+  def atMostOnce: RE = Union(this, Epsilon)
+
+  def atLeast(times: Int): RE =
+    if (times == 0) star
+    else
+      Concat(this, atLeast(times - 1))
+
+  def exactly(times: Int): RE =
+    if (times == 0) Epsilon
+    else
+      Concat(this, exactly(times - 1))
 }
 
 case object Epsilon extends RE {
@@ -22,6 +53,11 @@ case object EmptySet extends RE {
 case class Union(r: RE, s: RE) extends RE {
   override def derive(c: Char): RE = Union(r.derive(c), s.derive(c))
   override def acceptsEmpty = r.acceptsEmpty || s.acceptsEmpty
+}
+
+case class Intersect(r: RE, s: RE) extends RE {
+  override def derive(c: Char): RE = Intersect(r.derive(c), s.derive(c))
+  override def acceptsEmpty = r.acceptsEmpty && s.acceptsEmpty
 }
 
 case class Concat(r: RE, s: RE) extends RE {
@@ -44,21 +80,25 @@ case class Literal(s: String) extends RE {
   override def acceptsEmpty = s.isEmpty
 }
 
-case class SymbolRange(start: Char, end: Char) extends RE {
-  override def derive(c: Char): RE = if (start <= c && c <= end) Epsilon else EmptySet
+case class SymbolSet(val contains: Char => Boolean) extends RE {
+  override def derive(c: Char): RE = if (contains(c)) Epsilon else EmptySet
   override def acceptsEmpty = false
 }
 
-object Implicits {
+case object AllSymbols extends SymbolSet(_ => true)
+
+case class SymbolRange(start: Char, end: Char) extends SymbolSet(c => (start <= c && c <= end))
+
+object REImplicits {
   implicit def string2re(s: String): RE = Literal(s)
 
   implicit def rePimps(r: RE) = new {
-    def | (s: RE): RE = Union(r, s)
-    def ~ (s: RE): RE = Concat(r, s)
-    def ^ (n: Int): RE = if (n == 0) Epsilon else Concat(r, ^(n - 1))
-    def * : RE = Kleene(r)
-    def + : RE = Concat(r, Kleene(r))
-    def ? : RE = Union(Epsilon, r)
+    def | (s: RE): RE = r or s
+    def ~ (s: RE): RE = r concat s
+    def ^ (n: Int): RE = r atLeast n
+    def * : RE = r.star
+    def + : RE = r.atLeastOnce
+    def ? : RE = r.atMostOnce
   }
 
   implicit def charPimps(start: Char) = new {
@@ -66,17 +106,17 @@ object Implicits {
   }
 
   implicit def stringPimps(r: String) = new {
-    def | (s: RE): RE = Union(r, s)
-    def ~ (s: RE): RE = Concat(r, s)
-    def ^ (n: Int): RE = if (n == 0) Epsilon else Concat(r, ^(n - 1))
-    def * : RE = Kleene(r)
-    def + : RE = Concat(r, Kleene(r))
-    def ? : RE = Union(Epsilon, r)
+    def | (s: RE): RE = r or s
+    def ~ (s: RE): RE = r concat s
+    def ^ (n: Int): RE = r atLeast n
+    def * : RE = r.star
+    def + : RE = r.atLeastOnce
+    def ? : RE = r.atMostOnce
   }
 }
 
 object Main {
-  import Implicits._
+  import REImplicits._
 
   def main(args: Array[String]): Unit = {
     val lowerCase: RE = 'a' range 'z'
