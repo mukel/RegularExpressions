@@ -1,3 +1,5 @@
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.FunSuite
 
 /**
@@ -6,6 +8,8 @@ import org.scalatest.FunSuite
 
 import REImplicits._
 
+
+@RunWith(classOf[JUnitRunner])
 class RETests extends FunSuite {
 
   val lowerCase: RE = 'a' range 'z'
