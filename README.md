@@ -1,2 +1,2 @@
-[![Build Status](https://travis-ci.org/mukel/RegularExpressions.svg)](https://travis-ci.org/mukel/RegularExpressions)
-
+[![Travis CI Build Status](https://travis-ci.org/mukel/RegularExpressions.svg)](https://travis-ci.org/mukel/RegularExpressions)
+[![Shippable.io Build Status](https://api.shippable.com/projects/55b5094e02003a0c00d32ec6/badge/master)](https://app.shippable.com/projects/55b501cbedd7f2c05284f5b3)
