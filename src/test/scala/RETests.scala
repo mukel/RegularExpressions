@@ -18,7 +18,7 @@ class RETests extends FunSuite {
   val alphaNum = lowerCase | upperCase | digit
 
   test("EmptySet emptyness") {
-    assert(!Epsilon.acceptsEmpty)
+    assert(!EmptySet.acceptsEmpty)
     for (c <- 'a' to 'z')
       assert(EmptySet.derive(c) == EmptySet)
   }
