@@ -67,12 +67,6 @@ class RETests extends FunSuite {
     assert(matchNone(r, "0123", "++1", "0x40", "1234x21", ""));
   }
 
-  test("integers") {
-    val r = integer
-    assert(matchAll(r, "0", "123", "24129424920348172428", "-1", "+5", "-0", "+0"));
-    assert(matchNone(r, "0123", "++1", "0x40", "1234x21", ""));
-  }
-
   test("atLeastOnce") {
     val r = vowels.atLeastOnce
     assert(matchAll(r, "a", "ae", "aeiou"));
