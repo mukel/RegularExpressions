@@ -18,6 +18,7 @@ class RETests extends FunSuite {
   val alphaNum = lowerCase | upperCase | digit
 
   test("EmptySet emptyness") {
+    assert(!Epsilon.acceptsEmpty)
     for (c <- 'a' to 'z')
       assert(EmptySet.derive(c) == EmptySet)
   }
@@ -64,5 +65,17 @@ class RETests extends FunSuite {
     val r = integer
     assert(matchAll(r, "0", "123", "24129424920348172428", "-1", "+5", "-0", "+0"));
     assert(matchNone(r, "0123", "++1", "0x40", "1234x21", ""));
+  }
+
+  test("integers") {
+    val r = integer
+    assert(matchAll(r, "0", "123", "24129424920348172428", "-1", "+5", "-0", "+0"));
+    assert(matchNone(r, "0123", "++1", "0x40", "1234x21", ""));
+  }
+
+  test("atLeastOnce") {
+    val r = vowels.atLeastOnce
+    assert(matchAll(r, "a", "ae", "aeiou"));
+    assert(matchNone(r, "", "aaeex", "aeiuoxaeiuo"));
   }
 }
