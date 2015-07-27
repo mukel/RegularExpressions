@@ -1,9 +1,5 @@
 import org.scalatest.FunSuite
 
-/**
- * Created by mukel on 7/26/15.
- */
-
 import REImplicits._
 
 class RETests extends FunSuite {
@@ -37,39 +33,56 @@ class RETests extends FunSuite {
     words forall (w => !(r matches w))
   }
 
-  test("Simple concat") {
+  test("simple concat") {
     val r = vowels concat digit;
-    assert(matchAll(r, "a2", "e5", "o0"));
-    assert(matchNone(r, "a", "z1", ""));
+    assert(matchAll(r, "a2", "e5", "o0"))
+    assert(matchNone(r, "a", "z1", ""))
   }
 
   test("foor concat bar") {
-    val r = "foo" concat "bar";
-    assert(matchAll(r, "foobar"));
-    assert(matchNone(r, "foo", "bar", "foobarfoobar", ""));
+    val r = "foo" concat "bar"
+    assert(matchAll(r, "foobar"))
+    assert(matchNone(r, "foo", "bar", "foobarfoobar", ""))
   }
 
   test("foo union bar") {
     val r = "foo" | "bar"
-    assert(matchAll(r, "foo", "bar"));
-    assert(matchNone(r, "foobar", "barfoo", ""));
+    assert(matchAll(r, "foo", "bar"))
+    assert(matchNone(r, "foobar", "barfoo", ""))
   }
 
   test("vowels.star") {
     val r = vowels.star
-    assert(matchAll(r, "aeiou", "", "a"));
-    assert(matchNone(r, "aaax", "x", "axa"));
+    assert(matchAll(r, "aeiou", "", "a", "aeiouaeiouaaeeiioouu"))
+    assert(matchNone(r, "aaax", "x", "axa"))
   }
 
   test("integers") {
     val r = integer
-    assert(matchAll(r, "0", "123", "24129424920348172428", "-1", "+5", "-0", "+0"));
-    assert(matchNone(r, "0123", "++1", "0x40", "1234x21", ""));
+    assert(matchAll(r, "0", "123", "24129424920348172428", "-1", "+5", "-0", "+0"))
+    assert(matchNone(r, "0123", "++1", "0x40", "1234x21", ""))
   }
 
   test("atLeastOnce") {
     val r = vowels.atLeastOnce
-    assert(matchAll(r, "a", "ae", "aeiou"));
-    assert(matchNone(r, "", "aaeex", "aeiuoxaeiuo"));
+    assert(matchAll(r, "a", "ae", "aeiou"))
+    assert(matchNone(r, "", "aaeex", "aeiuoxaeiuo"))
+  }
+
+  test("simple complement") {
+    val r = vowels.star.complement
+    assert(matchAll(r, "x", "xyz", "aaeeiioouux", "aeiouxaeiou"))
+    assert(matchNone(r, "", "a", "aeiou", "aeiuoaeiuo"))
+  }
+
+  test("EmptySet complement") {
+    val r = EmptySet.complement
+    assert(matchAll(r, "", "x", "xyz", "aaeeiioouux", "aeiouxaeiou"))
+  }
+
+  test("Epsilon complement") {
+    val r = Epsilon.complement
+    assert(matchAll(r, "x", "xyz", "aaeeiioouux", "aeiouxaeiou"))
+    assert(matchNone(r, ""))
   }
 }
