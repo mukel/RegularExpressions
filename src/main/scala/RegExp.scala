@@ -1,7 +1,5 @@
-
 /**
- * Defines Regular Expression and simple (non-optimized) combinators
- * This should serve as a base for
+ * Defines very simple Regular Expressions with basic (non-optimized) combinators.
  */
 trait RE {
   def derive(c: Char): RE
@@ -119,13 +117,7 @@ object REImplicits {
     def + : RE = r.atLeastOnce
     def ? : RE = r.atMostOnce
 
+    // Allows something like vowels = "aeiou".oneOf
     def oneOf: RE = new SymbolSet(c => r contains c)
-  }
-}
-
-object Main {
-  import REImplicits._
-
-  def main(args: Array[String]): Unit = {
   }
 }
